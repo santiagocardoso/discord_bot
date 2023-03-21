@@ -2,15 +2,16 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 import random
-from server import server
 
 def run_discord_bot():
-    TOKEN = "SEU_TOKEN"
+    TOKEN = "MTA4NzIwMTg5NTYyMzQ0MjQ2Mg.GH0pwF.WNHs1pG3UqXKpLuTz5pxwTRLpz2lFYXQyvbPvU"
     intents = discord.Intents.all()
     bot = commands.Bot(command_prefix="!", intents=intents)
 
     @bot.event
     async def on_ready():
+        activity = discord.Game(name="waffle maker | !ajuda", type=3)
+        await bot.change_presence(activity=activity)
         print("Wafflinho está rodando!")
         try:
             synced = await bot.tree.sync()
@@ -53,6 +54,11 @@ def run_discord_bot():
         else:
             await ctx.channel.send("Somente é possível deletar 100 mensagens por vez")
 
+    @bot.command()
+    async def diz(ctx, *, message):
+        await ctx.message.delete()
+        await ctx.send(message)
+        
     @bot.tree.command(name="oi")
     async def oi(interaction: discord.Interaction):
         await interaction.response.send_message(f"Oie {interaction.user.mention}!", ephemeral=True)
@@ -61,6 +67,5 @@ def run_discord_bot():
     @app_commands.describe(thing_to_say = "O que eu deveria dizer?")
     async def say(interaction: discord.Interaction, thing_to_say: str):
         await interaction.response.send_message(f"{interaction.user.name} disse: `{thing_to_say}`")
-    
-    server()
+
     bot.run(TOKEN)
