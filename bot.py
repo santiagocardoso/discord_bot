@@ -4,7 +4,7 @@ from discord.ext import commands
 import random
 
 def run_discord_bot():
-    TOKEN = "MTA4NzIwMTg5NTYyMzQ0MjQ2Mg.GJ9aka.Tr3Lz_lKl4iv2g8Ze0AOyS8_Wt2lgRl-GCIfPI"
+    TOKEN = "SEU_TOKEN"
     intents = discord.Intents.all()
     bot = commands.Bot(command_prefix="!", intents=intents)
 
