@@ -2,6 +2,7 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 import random
+from server import server
 
 def run_discord_bot():
     TOKEN = "YOUR_TOKEN"
@@ -68,4 +69,5 @@ def run_discord_bot():
     async def say(interaction: discord.Interaction, thing_to_say: str):
         await interaction.response.send_message(f"{interaction.user.name} disse: `{thing_to_say}`")
 
+    server()
     bot.run(TOKEN)
