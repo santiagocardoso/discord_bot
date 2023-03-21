@@ -1,7 +1,10 @@
 import discord
 from discord import app_commands
 from discord.ext import commands
+from discord.utils import get
+
 import random
+
 from server import server
 import asyncio
 
@@ -20,10 +23,57 @@ def run_discord_bot():
             print(f"Synced {len(synced)} command's")
         except Exception as e:
             print(e)
-    
-    @bot.command()
-    async def oie(ctx):
-        await ctx.send("Oie!")
+
+    @bot.event
+    async def on_raw_reaction_add(payload): # da um cargo com reacao de emoji
+        guild = discord.utils.find(lambda g: g.id == payload.guild_id, bot.guilds)
+
+        if payload.emoji.name == '🎲' and payload.message_id == 774810615373365268:
+            role = discord.utils.get(guild.roles, name="RANDOM")
+            if role is not None:
+                member = discord.utils.find(lambda m: m.id == payload.user_id, guild.members)
+                if member is not None:
+                    await member.add_roles(role)
+        elif payload.emoji.name == '💨' and payload.message_id == 774810615373365268:
+            role = discord.utils.get(guild.roles, name="MOVER")
+            if role is not None:
+                member = discord.utils.find(lambda m: m.id == payload.user_id, guild.members)
+                if member is not None:
+                    await member.add_roles(role)
+        elif payload.emoji.name == '📱' and payload.message_id == 774810615373365268:
+            role = discord.utils.get(guild.roles, name="CELULAR")
+            if role is not None:
+                member = discord.utils.find(lambda m: m.id == payload.user_id, guild.members)
+                if member is not None:
+                    await member.add_roles(role)
+                  
+    @bot.event
+    async def on_raw_reaction_remove(payload): # remove um cargo com reacao de emoji
+        guild = discord.utils.find(lambda g: g.id == payload.guild_id, bot.guilds)
+
+        if payload.emoji.name == '🎲' and payload.message_id == 774810615373365268:
+            role = discord.utils.get(guild.roles, name="RANDOM")
+            if role is not None:
+                member = discord.utils.find(lambda m: m.id == payload.user_id, guild.members)
+                if member is not None:
+                    await member.remove_roles(role)
+        elif payload.emoji.name == '💨' and payload.message_id == 774810615373365268:
+            role = discord.utils.get(guild.roles, name="MOVER")
+            if role is not None:
+                member = discord.utils.find(lambda m: m.id == payload.user_id, guild.members)
+                if member is not None:
+                    await member.remove_roles(role)
+        elif payload.emoji.name == '📱' and payload.message_id == 774810615373365268:
+            role = discord.utils.get(guild.roles, name="CELULAR")
+            if role is not None:
+                member = discord.utils.find(lambda m: m.id == payload.user_id, guild.members)
+                if member is not None:
+                    await member.remove_roles(role)
+  
+    @bot.event
+    async def on_member_join(member):
+        role = get(member.guild.roles, name="MEMBROS")
+        await member.add_roles(role)
     
     @bot.command()
     async def ajuda(ctx):
@@ -75,4 +125,3 @@ def run_discord_bot():
   
     server()
     bot.run(TOKEN)
-    
