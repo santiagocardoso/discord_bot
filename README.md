@@ -1,2 +1,4 @@
 # discord_bot
-my first discord bot
+discord bot for personal use in waffle community
+
+Discord bot under development using Python
