@@ -174,6 +174,11 @@ def run_discord_bot():
         await ctx.voice_client.disconnect()
         await ctx.send("Ok... Estou saindo \U0001F62D")
 
+    @bot.event
+    async def on_voice_state_update(member, before, after):
+        if before.channel is not None and len(before.channel.members) == 1 and before.channel.guild.voice_client is not None:
+            await before.channel.guild.voice_client.disconnect()
+
     # Comandos com barra -----------------------------------------------
 
     @bot.tree.command(name="oi")
