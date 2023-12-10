@@ -3,7 +3,6 @@ from discord import app_commands
 from discord.ext import commands
 from discord.utils import get
 import random
-import youtube_dl
 import asyncio
 
 from server import server
@@ -31,7 +30,7 @@ def run_discord_bot():
     async def on_raw_reaction_add(payload):  # Da um cargo através da reação de um emoji
         guild = discord.utils.find(lambda g: g.id == payload.guild_id, bot.guilds)
 
-        if payload.message_id == SEU_ID_DA_MENSAGEM or payload.message_id == SEU_ID_DA_MENSAGEM:
+        if payload.message_id == SUA_MESSAGE_ID or payload.message_id == SUA_MESSAGE_ID:
             if payload.emoji.name == '💨':
                 role = get(guild.roles, name="MOVER")
                 if role is not None:
@@ -44,7 +43,7 @@ def run_discord_bot():
     async def on_raw_reaction_remove(payload):  # Remove um cargo através da reação de um emoji
         guild = discord.utils.find(lambda g: g.id == payload.guild_id, bot.guilds)
 
-        if payload.message_id == SEU_ID_DA_MENSAGEM or payload.message_id == SEU_ID_DA_MENSAGEM:
+        if payload.message_id == SUA_MESSAGE_ID or payload.message_id == SUA_MESSAGE_ID:
             if payload.emoji.name == '💨':
                 role = get(guild.roles, name="MOVER")
                 if role is not None:
@@ -64,16 +63,16 @@ def run_discord_bot():
                 await guild.system_channel.send(f"{member.mention}")
                 await guild.system_channel.send(embed=embed)
 
-                if guild.id == SEU_ID_DA_GUILDA:
+                if guild.id == SUA_GUILD_ID:
                     role = get(guild.roles, name="MEMBROS")
                     if role:
                         await member.add_roles(role)
-                elif guild.id == SEU_ID_DA_GUILDA:
+                elif guild.id == SUA_GUILD_ID:
                     role = get(guild.roles, name="👨‍🌾 - Plebeus - 👨‍🌾")
                     if role:
                         await member.add_roles(role)
             except discord.errors.Forbidden:
-                print("Bot does not have the necessary permissions to manage roles.")
+                print("Bot não possui as permissões necessárias para lidar com cargos.")
 
     # Menu de ajuda -----------------------------------------------
 
@@ -81,9 +80,8 @@ def run_discord_bot():
     async def ajuda(ctx):
         await ctx.send("``` ```")
         await ctx.send(
-        "```👋 Oie eu sou o Wafflinho, o Bot oficial do Waffle!\n\nMeus comandos são:\n\nMostrar esse menu                 ┃ [!ajuda]\nOperações com dois números        ┃ [!soma], [!subt], [!mult], [!div]\nOperações com vários números      ┃ [!somas], [!subts]\nRoda um dado                      ┃ [!dado], [!rand]\nConsigo apagar várias mensagens   ┃ [!clear]\nConsigo falar algo que você mande ┃ [/fale], [!fale]\nInicio uma votação                ┃ [!poll]```"
+        "```👋 Oie eu sou o Wafflinho, o Bot oficial do Waffle!\n\nMeus comandos são:\n\nMostrar esse menu                 ┃ [!ajuda]\nOperações com dois números        ┃ [!soma], [!subt], [!mult], [!div]\nOperações com vários números      ┃ [!somas], [!subts]\nRoda um dado                      ┃ [!dado], [!rand]\nConsigo apagar várias mensagens   ┃ [!clear]\nConsigo falar algo que você mande ┃ [/fale], [!fale]\nInicio uma votação                ┃ [!poll]\nEntrar no canal de voz            ┃ [!join]\nSair do canal de voz              ┃ [!sair]```"
         )
-        await ctx.send("```\U0001F3B5 Música:\n\nEntrar no canal de voz ┃ [!join]\nTocar uma música       ┃ [!play]\nPausar                 ┃ [!pausar]\nDespausar              ┃ [!despausar]\nSair do canal de voz   ┃ [!stop]```")
         await ctx.send("``` ```")
 
     # Comandos divertidos -----------------------------------------------
@@ -158,9 +156,7 @@ def run_discord_bot():
         await msg.add_reaction("👍")
         await msg.add_reaction("👎")
 
-    # Tocar música -----------------------------------------------
-
-    @bot.command(name="join", aliases=["entrar"])
+    @bot.command(name="entrar", aliases=["join"])
     async def join(ctx):
         if ctx.author.voice is None:
             await ctx.send("Você não está em um canal de voz!")
@@ -173,42 +169,10 @@ def run_discord_bot():
                 await ctx.voice_client.move_to(voice_channel)
                 await ctx.send("Já já eu entro \U0001F61D")
 
-    @bot.command(name="play", aliases=["tocar"])
-    async def play(ctx, url):
-        ctx.voice_client.stop()
-        FFMPEG_OPTIONS={'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5', 'options': '-vn'}
-        YDL_OPTIONS = {'format': 'bestaudio'}
-
-        with youtube_dl.YoutubeDL(YDL_OPTIONS) as ydl:
-            info = ydl.extract_info(url, download=False)
-            if 'formats' in info:
-                best_audio = min(info['formats'], key=lambda x: int(x.get('abr', 0)))
-                url2 = best_audio['url']
-                source = await discord.FFmpegOpusAudio.from_probe(url2, **FFMPEG_OPTIONS)
-                ctx.voice_client.play(source)
-            else:
-                await ctx.send("Não foi possível encontrar o formato de áudio adequado para este vídeo.")
-
-    @bot.command(name="stop", aliases=["leave", "disconnect", "sair", "parar"])
+    @bot.command(name="sair", aliases=["leave", "disconnect", "quit"])
     async def disconnect(ctx):
         await ctx.voice_client.disconnect()
-        await ctx.send("Ok!! Estou desligando \U0001F62D")
-
-    @bot.command(name="pause", aliases=["pausar"])
-    async def pause(ctx):
-        if ctx.voice_client and ctx.voice_client.is_playing():
-            await ctx.send("\u23F8 Pausando a reprodução.")
-            ctx.voice_client.pause()
-        else:
-            await ctx.send("O bot não está reproduzindo ou não está em um canal de voz.")
-
-    @bot.command(name="resume", aliases=["resumir", "voltar", "unpause", "despausar"])
-    async def resume(ctx):
-        if ctx.voice_client and ctx.voice_client.is_paused():
-            await ctx.send("\u25B6 Resumindo a reprodução.")
-            ctx.voice_client.resume()
-        else:
-            await ctx.send("O bot não está pausado ou não está em um canal de voz.")
+        await ctx.send("Ok... Estou saindo \U0001F62D")
 
     # Comandos com barra -----------------------------------------------
 
@@ -225,3 +189,4 @@ def run_discord_bot():
 
     server()
     bot.run(TOKEN)
+
