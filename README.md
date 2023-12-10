@@ -1,4 +1,10 @@
 # discord_bot
-discord bot for personal use in waffle community
 
-Discord bot under development using Python
+Criador:  
+&emsp;Santiago Cardoso  
+
+Bot do discord feito em Python para uso na comunidade Waffle
+
+```
+$ git clone https://github.com/santiagocardoso/discord_bot.git
+```
