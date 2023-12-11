@@ -45,7 +45,7 @@ async def run_discord_bot():
     async def on_raw_reaction_add(payload):  # Da um cargo através da reação de um emoji
         guild = discord.utils.find(lambda g: g.id == payload.guild_id, bot.guilds)
 
-        if payload.message_id == 774810615373365268 or payload.message_id == 1109138770479038515:
+        if payload.message_id == SEU_MSG_ID_AQUI or payload.message_id == SEU_MSG_ID_AQUI:
             if payload.emoji.name == '💨':
                 role = get(guild.roles, name="MOVER")
                 if role is not None:
@@ -59,7 +59,7 @@ async def run_discord_bot():
     async def on_raw_reaction_remove(payload):  # Remove um cargo através da reação de um emoji
         guild = discord.utils.find(lambda g: g.id == payload.guild_id, bot.guilds)
 
-        if payload.message_id == 774810615373365268 or payload.message_id == 1109138770479038515:
+        if payload.message_id == SEU_MSG_ID_AQUI or payload.message_id == SEU_MSG_ID_AQUI:
             if payload.emoji.name == '💨':
                 role = get(guild.roles, name="MOVER")
                 if role is not None:
@@ -80,11 +80,11 @@ async def run_discord_bot():
                 await guild.system_channel.send(f"{member.mention}")
                 await guild.system_channel.send(embed=embed)
 
-                if guild.id == 344610042756202496:
+                if guild.id == SEU_GUILD_ID_AQUI:
                     role = get(guild.roles, name="MEMBROS")
                     if role:
                         await member.add_roles(role)
-                elif guild.id == 768848870419333180:
+                elif guild.id == SEU_GUILD_ID_AQUI:
                     role = get(guild.roles, name="👨‍🌾 - Plebeus - 👨‍🌾")
                     if role:
                         await member.add_roles(role)
