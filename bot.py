@@ -45,7 +45,7 @@ async def run_discord_bot():
     async def on_raw_reaction_add(payload):  # Da um cargo através da reação de um emoji
         guild = discord.utils.find(lambda g: g.id == payload.guild_id, bot.guilds)
 
-        if payload.message_id == SEU_MSG_ID_AQUI or payload.message_id == SEU_MSG_ID_AQUI:
+        if payload.message_id == ID_DA_MENSAGEM or payload.message_id == ID_DA_MENSAGEM:
             if payload.emoji.name == '💨':
                 role = get(guild.roles, name="MOVER")
                 if role is not None:
@@ -59,7 +59,7 @@ async def run_discord_bot():
     async def on_raw_reaction_remove(payload):  # Remove um cargo através da reação de um emoji
         guild = discord.utils.find(lambda g: g.id == payload.guild_id, bot.guilds)
 
-        if payload.message_id == SEU_MSG_ID_AQUI or payload.message_id == SEU_MSG_ID_AQUI:
+        if payload.message_id == ID_DA_MENSAGEM or payload.message_id == ID_DA_MENSAGEM:
             if payload.emoji.name == '💨':
                 role = get(guild.roles, name="MOVER")
                 if role is not None:
@@ -80,11 +80,11 @@ async def run_discord_bot():
                 await guild.system_channel.send(f"{member.mention}")
                 await guild.system_channel.send(embed=embed)
 
-                if guild.id == SEU_GUILD_ID_AQUI:
+                if guild.id == ID_DO_SERVER:
                     role = get(guild.roles, name="MEMBROS")
                     if role:
                         await member.add_roles(role)
-                elif guild.id == SEU_GUILD_ID_AQUI:
+                elif guild.id == ID_DO_SERVER:
                     role = get(guild.roles, name="👨‍🌾 - Plebeus - 👨‍🌾")
                     if role:
                         await member.add_roles(role)
@@ -98,6 +98,7 @@ async def run_discord_bot():
     await bot.load_extension('comandos_utilitario')
     await bot.load_extension('comandos_economia')
     await bot.load_extension('comandos_musica')
+    await bot.load_extension('comandos_nivel')
 
     @bot.event
     async def on_voice_state_update(member, before, after):

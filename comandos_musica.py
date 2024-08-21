@@ -4,7 +4,7 @@ from discord.ext import commands
 class Musica(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        
+
 
     @commands.command(name="entrar", aliases=["join"])
     async def join(self, ctx):

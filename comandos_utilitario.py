@@ -7,15 +7,17 @@ class Utilitario(commands.Cog):
         self.bot = bot
 
     @commands.command(aliases=["purge", "delete", "vanish", "wipe"])
-    @commands.cooldown(1, 5, commands.BucketType.user)
+    @commands.cooldown(1, 5, commands.BucketType.default)
     @commands.has_permissions(manage_messages=True)
     async def clear(self, ctx, amount: int = 0):
-        if amount < 6 + 1:
+        quant = 6
+      
+        if amount < quant + 1:
             await ctx.message.delete()
             await ctx.channel.purge(limit=amount)
         else:
             await ctx.message.delete()
-            await ctx.channel.send("Somente é possível deletar 30 mensagens por vez")
+            await ctx.channel.send(f"Somente é possível deletar {quant} mensagens por vez")
             await asyncio.sleep(2)
             await ctx.channel.purge(limit=1)
 

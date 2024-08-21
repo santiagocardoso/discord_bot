@@ -7,22 +7,25 @@ import random
 class Economia(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-    
-    
-    @commands.command(aliases=["carteira", "conta"])
-    async def dinheiro(self, ctx):
+
+
+    @commands.command(aliases=["carteira", "conta", "din"])
+    async def dinheiro(self, ctx, member: discord.Member=None):
         await self.abrir_conta(ctx.author)
 
-        user = ctx.author
+        if member is None:
+            member = ctx.author
+
         users = await self.get_banco()
 
-        quant_carteira = users[str(user.id)]["carteira"]
-        quant_cofre = users[str(user.id)]["cofre"]
+        quant_carteira = users[str(member.id)]["carteira"]
+        quant_cofre = users[str(member.id)]["cofre"]
 
-        em = discord.Embed(title=f"💰 Conta do {ctx.author.name}!", color=ctx.author.color)
+        em = discord.Embed(title=f"💰 Conta de {member.name}!", color=member.color)
         em.add_field(name="Carteira 🪙", value=quant_carteira)
         em.add_field(name="Cofre 🪙", value=quant_cofre)
         await ctx.send(embed=em)
+
 
 
     @commands.Cog.listener()
@@ -32,15 +35,15 @@ class Economia(commands.Cog):
             await ctx.send(msg)
 
 
-    @commands.command(aliases=["implorar"])
-    @commands.cooldown(5, 60, commands.BucketType.user)
+    @commands.command(aliases=["implorar", "p"])
+    @commands.cooldown(1, 15, commands.BucketType.user)
     async def pedir(self, ctx):
         await self.abrir_conta(ctx.author)
 
         user = ctx.author
         users = await self.get_banco()
 
-        ganhos = random.randrange(201)
+        ganhos = random.randint(100, 300)
 
         await ctx.send(f"Alguém te deu {ganhos} 🪙!!")
 
@@ -50,7 +53,385 @@ class Economia(commands.Cog):
             json.dump(users, f)
 
 
-    @commands.command()
+    @commands.command(aliases=["dig"])
+    @commands.cooldown(1, 15, commands.BucketType.user)
+    async def cavar(self, ctx):
+        await self.abrir_conta(ctx.author)
+
+        user = ctx.author
+        users = await self.get_banco()
+
+        din = await self.atualizar_banco(ctx.author)
+
+        perdeu_carteira = int(20/100 * din[0])
+        perdeu_cofre = int(40/100 * din[1])
+
+        item = random.choice(["🪨", "🪨", "🪨", "🪨", "🪨", "🪨", "💎", "💎", "🌌", "💣", "🦖"]) 
+
+        await ctx.send(f"Você encontrou {item}!!")
+
+        if item == "🪨":
+            obj = {"item":"pedra", "quantidade": 1}
+
+            try:
+                i = 0
+                t = None
+                for coisa in users[str(user.id)]["mochila"]:
+                    n = coisa["item"]
+                    if n == obj["item"]:
+                        quant_velha = coisa["quantidade"]
+                        nova_quant = quant_velha + obj["quantidade"]
+                        users[str(user.id)]["mochila"][i]["quantidade"] = nova_quant
+                        t = 1
+                        break
+                    i += 1
+                if t == None:
+                    obj = {"item":obj["item"], "quantidade": obj["quantidade"]}
+                    users[str(user.id)]["mochila"].append(obj)
+
+            except:
+                obj = {"item":obj["item"], "quantidade": obj["quantidade"]}
+                users[str(user.id)]["mochila"] = [obj]
+
+        if item == "💎":
+            obj = {"item":"diamante", "quantidade": 1}
+
+            try:
+                i = 0
+                t = None
+                for coisa in users[str(user.id)]["mochila"]:
+                    n = coisa["item"]
+                    if n == obj["item"]:
+                        quant_velha = coisa["quantidade"]
+                        nova_quant = quant_velha + obj["quantidade"]
+                        users[str(user.id)]["mochila"][i]["quantidade"] = nova_quant
+                        t = 1
+                        break
+                    i += 1
+                if t == None:
+                    obj = {"item":obj["item"], "quantidade": obj["quantidade"]}
+                    users[str(user.id)]["mochila"].append(obj)
+
+            except:
+                obj = {"item":obj["item"], "quantidade": obj["quantidade"]}
+                users[str(user.id)]["mochila"] = [obj]
+
+        if item == "🌌":
+            await ctx.send("Você encontrou um portal dimensional... Deseja investigar? Digite (sim/nao)")
+
+            async def check(m):
+                return m.author == ctx.author and m.channel == ctx.channel
+
+            try:
+                response = await self.bot.wait_for('message', check=check, timeout=15)  # Aguarda a resposta por 15 segundos
+            except asyncio.TimeoutError:
+                await ctx.send("Tempo esgotado. A investigação foi cancelada.")
+
+            if response.content.lower() == "sim":
+                await ctx.send("Você entrou no portal e encontrou um 👽")
+
+                destino = random.choice(["❌", "💎"])
+
+                if destino == "❌":
+                    await ctx.send(f"Ele não gostou de você e fez experimentos 😱\nVocê perdeu **(-{perdeu_cofre} 🪙)** para pagar suas cirurgias após os danos causados!")
+
+                    if users[str(user.id)]["carteira"] > perdeu_cofre:
+                        users[str(user.id)]["carteira"] -= perdeu_cofre
+                    else:
+                        users[str(user.id)]["carteira"] = 0
+                else:
+                    await ctx.send(f"Ele gostou de você e como viu que estava procurando diamantes te deu um 💎!")
+
+                    obj = {"item":"diamante", "quantidade": 1}
+
+                    try:
+                        i = 0
+                        t = None
+                        for coisa in users[str(user.id)]["mochila"]:
+                            n = coisa["item"]
+                            if n == obj["item"]:
+                                quant_velha = coisa["quantidade"]
+                                nova_quant = quant_velha + obj["quantidade"]
+                                users[str(user.id)]["mochila"][i]["quantidade"] = nova_quant
+                                t = 1
+                                break
+                            i += 1
+                        if t == None:
+                            obj = {"item":obj["item"], "quantidade": obj["quantidade"]}
+                            users[str(user.id)]["mochila"].append(obj)
+
+                    except:
+                        obj = {"item":obj["item"], "quantidade": obj["quantidade"]}
+                        users[str(user.id)]["mochila"] = [obj]
+
+            elif response.content.lower() == "nao":
+                await ctx.send("Você decidiu não investigar a pegada.")
+            else:
+                await ctx.send("Resposta inválida. A investigação foi cancelada.")
+
+        if item == "💣":
+            await ctx.send(f"Você acertou uma bomba!!!! 💥💥💥\nPerdeu **(-{perdeu_carteira} 🪙)**")
+
+            if users[str(user.id)]["carteira"] > perdeu_carteira:
+                users[str(user.id)]["carteira"] -= perdeu_carteira
+            else:
+                users[str(user.id)]["carteira"] = 0
+
+        if item == "🦖":
+            await ctx.send(f"Você encontrou um fóssil raro de um T-Rex e vendeu ele para um museu\nGanhou **(1500 🪙)**")
+            users[str(user.id)]["carteira"] += 1500
+
+        with open("banco.json", "w") as f:
+            json.dump(users, f)
+
+
+    # Mine: ⛏️🪨💎💰🪙🪙🪙🌋🐾
+
+    @commands.command(aliases=["mine", "m", "search"])
+    @commands.cooldown(1, 0.8, commands.BucketType.user)
+    async def minerar(self, ctx):
+        await self.abrir_conta(ctx.author)
+
+        user = ctx.author
+        users = await self.get_banco()
+
+        din = await self.atualizar_banco(ctx.author)
+
+        n = None
+        for coisa in users[str(user.id)]["mochila"]:
+            n = coisa["item"]
+            if n == "picareta":
+                if coisa["quantidade"] > 0:
+                    coisa["quantidade"] -= 1
+                else:
+                    await ctx.send("Você não tem uma ⛏️, compre uma na loja!")
+                    return
+
+        if n == None:
+            await ctx.send("Você não tem uma ⛏️, compre uma na loja!")
+            return
+
+        perdeu = int(10/100 * din[0])
+
+        item = random.choice(["🪨", "🪨", "🪨", "🪨", "💎", "💎", "💰", "🪙", "🌋", "🐾"])
+
+        await ctx.send(f"Você encontrou {item}!!")
+
+        if item == "🪨":
+            obj = {"item":"pedra", "quantidade": 1}
+
+            try:
+                i = 0
+                t = None
+                for coisa in users[str(user.id)]["mochila"]:
+                    n = coisa["item"]
+                    if n == obj["item"]:
+                        quant_velha = coisa["quantidade"]
+                        nova_quant = quant_velha + obj["quantidade"]
+                        users[str(user.id)]["mochila"][i]["quantidade"] = nova_quant
+                        t = 1
+                        break
+                    i += 1
+                if t == None:
+                    obj = {"item":obj["item"], "quantidade": obj["quantidade"]}
+                    users[str(user.id)]["mochila"].append(obj)
+
+            except:
+                obj = {"item":obj["item"], "quantidade": obj["quantidade"]}
+                users[str(user.id)]["mochila"] = [obj]
+
+        if item == "💎":
+            obj = {"item":"diamante", "quantidade": 1}
+
+            try:
+                i = 0
+                t = None
+                for coisa in users[str(user.id)]["mochila"]:
+                    n = coisa["item"]
+                    if n == obj["item"]:
+                        quant_velha = coisa["quantidade"]
+                        nova_quant = quant_velha + obj["quantidade"]
+                        users[str(user.id)]["mochila"][i]["quantidade"] = nova_quant
+                        t = 1
+                        break
+                    i += 1
+                if t == None:
+                    obj = {"item":obj["item"], "quantidade": obj["quantidade"]}
+                    users[str(user.id)]["mochila"].append(obj)
+
+            except:
+                obj = {"item":obj["item"], "quantidade": obj["quantidade"]}
+                users[str(user.id)]["mochila"] = [obj]
+
+        if item == "💰":
+            users[str(user.id)]["carteira"] += 1000
+            await ctx.send("Ganhou **(1000 🪙)**")
+
+        if item == "🪙":
+            users[str(user.id)]["carteira"] += 500
+            await ctx.send("Ganhou **(400 🪙)**")
+
+        if item == "🌋":
+            await ctx.send(f"Você iniciou a erupção de um vulcão! Parece que queimou um pouco do seu dinheiro 😱\n**(-{perdeu} 🪙)**")
+            if users[str(user.id)]["carteira"] > perdeu:
+                users[str(user.id)]["carteira"] -= perdeu
+            else:
+                users[str(user.id)]["carteira"] = 0
+
+        if item == "🐾":
+            await ctx.send("Você encontrou uma pegada estranha... Deseja investigar? Digite (sim/nao)")
+
+            async def check(m):
+                return m.author == ctx.author and m.channel == ctx.channel
+
+            try:
+                response = await self.bot.wait_for('message', check=check, timeout=15)  # Aguarda a resposta por 15 segundos
+            except asyncio.TimeoutError:
+                await ctx.send("Tempo esgotado. A investigação foi cancelada.")
+
+            if response.content.lower() == "sim":
+                await ctx.send("Você decidiu investigar a pegada.")
+
+                animal = random.choice(["🦤", "🦍"])
+
+                if animal == "🦍":
+                    await ctx.send(f"Você encontrou um 🦍 malvado. Parece que ele roubou um pouco do seu dinheiro 😱\n**(-{perdeu} 🪙)**")
+
+                    if users[str(user.id)]["carteira"] > perdeu:
+                        users[str(user.id)]["carteira"] -= perdeu
+                    else:
+                        users[str(user.id)]["carteira"] = 0
+                else:
+                    await ctx.send(f"Você encontrou um {animal} bonzinho. Foi para a sua mochila!")
+                    if animal == "🦤":
+                        obj = {"item":"dodo", "quantidade": 1}
+
+                    try:
+                        i = 0
+                        t = None
+                        for coisa in users[str(user.id)]["mochila"]:
+                            n = coisa["item"]
+                            if n == obj["item"]:
+                                quant_velha = coisa["quantidade"]
+                                nova_quant = quant_velha + obj["quantidade"]
+                                users[str(user.id)]["mochila"][i]["quantidade"] = nova_quant
+                                t = 1
+                                break
+                            i += 1
+                        if t == None:
+                            obj = {"item":obj["item"], "quantidade": obj["quantidade"]}
+                            users[str(user.id)]["mochila"].append(obj)
+
+                    except:
+                        obj = {"item":obj["item"], "quantidade": obj["quantidade"]}
+                        users[str(user.id)]["mochila"] = [obj]
+
+            elif response.content.lower() == "nao":
+                await ctx.send("Você decidiu não investigar a pegada.")
+            else:
+                await ctx.send("Resposta inválida. A investigação foi cancelada.")
+
+        with open("banco.json", "w") as f:
+            json.dump(users, f)
+
+
+    #  Pesca: 🎣🐟🐠🐡🦈🐙🪼🦀🦑🐳
+
+    @commands.command(aliases=["fish", "fishing", "f", "pesca"])
+    @commands.cooldown(1, 0.8, commands.BucketType.user)
+    async def pescar(self, ctx):
+        await self.abrir_conta(ctx.author)
+
+        user = ctx.author
+        users = await self.get_banco()
+
+        din = await self.atualizar_banco(ctx.author)
+
+        n = None
+        for coisa in users[str(user.id)]["mochila"]:
+            n = coisa["item"]
+            if n == "vara":
+                if coisa["quantidade"] > 0:
+                    coisa["quantidade"] -= 1
+                else:
+                    await ctx.send("Você não tem uma 🎣, compre uma na loja!")
+                    return
+
+        if n == None:
+            await ctx.send("Você não tem uma 🎣, compre uma na loja!")
+            return
+
+        dano = int(10/100 * din[0])
+        tuba = int(30/100 * din[0])
+
+        item = random.choice(["🐟", "🐟", "🐟", "🐟", "🐟", "🐟", "🐟", "🐟", "🐟", "🐠", "🐠", "🐠", "🐠", "🐠", "🐡", "🦈", "🐙","🐙", "🐙", "🪼", "🦀", "🦀", "🦀", "🦑", "🦑", "🐳"])
+        await ctx.send(f"Você pescou {item}!!")
+
+        if item == "🐟" or item == "🐠" or item == "🐙" or item == "🦀" or item == "🦑" or item == "🐳" or item == "🐡":
+            obj = {"item":"peixe", "quantidade": 1}
+
+            try:
+                i = 0
+                t = None
+                for coisa in users[str(user.id)]["mochila"]:
+                    n = coisa["item"]
+                    if n == obj["item"]:
+                        quant_velha = coisa["quantidade"]
+                        nova_quant = quant_velha + obj["quantidade"]
+                        users[str(user.id)]["mochila"][i]["quantidade"] = nova_quant
+                        t = 1
+                        break
+                    i += 1
+                if t == None:
+                    obj = {"item":obj["item"], "quantidade": obj["quantidade"]}
+                    users[str(user.id)]["mochila"].append(obj)
+
+            except:
+                obj = {"item":obj["item"], "quantidade": obj["quantidade"]}
+                users[str(user.id)]["mochila"] = [obj]
+
+        bonus_mapping = {
+            "🐠": 600,
+            "🐙": 800,
+            "🦀": 400,
+            "🦑": 1000,
+        }
+
+        if item in bonus_mapping:
+            bonus = bonus_mapping[item]
+            await ctx.send(f"Você ganhou **{bonus}** 🪙 de bônus da pesca desse peixe")
+            users[str(user.id)]["carteira"] += bonus
+
+        if item == "🐳":
+            await ctx.send("Você encontrou a baleia da sorte!! Ela dobrou seu dinheiro da carteira!")
+            users[str(user.id)]["carteira"] = 2 * users[str(user.id)]["carteira"]
+
+        if item == "🐡":
+            await ctx.send(f"O baiacu acabou furando um pouco do seu dinheiro 😱\n**(-{dano} 🪙)**")
+            if users[str(user.id)]["carteira"] > dano:
+                users[str(user.id)]["carteira"] -= dano
+            else:
+                users[str(user.id)]["carteira"] = 0
+
+        if item == "🪼":
+            await ctx.send(f"Você acabou levando um choque e curto circuitou seu cofre 😱\n**(-{dano} 🪙)**")
+            if users[str(user.id)]["cofre"] > dano:
+                users[str(user.id)]["cofre"] -= dano
+            else:
+                users[str(user.id)]["cofre"] = 0
+
+        if item == "🦈":
+            await ctx.send(f"O tubarão comeu sua perna!!! Parece que a sua carteira também...\n**(-{tuba} 🪙)**")
+            if users[str(user.id)]["cofre"] > tuba:
+              users[str(user.id)]["cofre"] -= tuba
+            else:
+              users[str(user.id)]["cofre"] = 0
+
+        with open("banco.json", "w") as f:
+            json.dump(users, f)
+
+
+    @commands.command(aliases=["positar"])
     async def sacar(self, ctx, quantia=None):
         await self.abrir_conta(ctx.author)
 
@@ -60,6 +441,9 @@ class Economia(commands.Cog):
 
         din = await self.atualizar_banco(ctx.author)
 
+        if quantia == "all" or quantia == "tudo":
+            quantia = din[1]
+
         quantia = int(quantia)
 
         if quantia > din[1]:
@@ -67,6 +451,9 @@ class Economia(commands.Cog):
             return
         if quantia < 0:
             await ctx.send("Como que tu vai sacar dinheiro negativo?")
+            return
+        if quantia == 0:
+            await ctx.send("Não tem como sacar nada...")
             return
 
         await self.atualizar_banco(ctx.author, quantia)
@@ -85,12 +472,19 @@ class Economia(commands.Cog):
 
         din = await self.atualizar_banco(ctx.author)
 
+        if quantia == "all" or quantia == "tudo":
+            quantia = din[0]
+
         quantia = int(quantia)
+
         if quantia > din[0]:
             await ctx.send("Você não é rico não!")
             return
         if quantia < 0:
             await ctx.send("Como que tu vai depositar dinheiro negativo?")
+            return
+        if quantia == 0:
+            await ctx.send("Não tem como depositar nada...")
             return
 
         await self.atualizar_banco(ctx.author, -1 * quantia)
@@ -99,7 +493,7 @@ class Economia(commands.Cog):
         await ctx.send(f"Você depositou {quantia} 🪙!")
 
 
-    @commands.command()
+    @commands.command(aliases=["send", "give"])
     async def enviar(self, ctx, member: discord.Member, quantia=None):
         await self.abrir_conta(ctx.author)
         await self.abrir_conta(member)
@@ -110,7 +504,7 @@ class Economia(commands.Cog):
 
         din = await self.atualizar_banco(ctx.author)
 
-        if quantia == "all":
+        if quantia == "all" or quantia == "tudo":
             quantia = din[0]
 
         quantia = int(quantia)
@@ -119,7 +513,10 @@ class Economia(commands.Cog):
             await ctx.send("Você não é rico não!")
             return
         if quantia < 0:
-            await ctx.send("Como que tu vai depositar dinheiro negativo?")
+            await ctx.send("Como que tu vai enviar dinheiro negativo?")
+            return
+        if quantia == 0:
+            await ctx.send("Não tem como enviar nada...")
             return
 
         await self.atualizar_banco(ctx.author, -1 * quantia, "cofre")
@@ -128,9 +525,9 @@ class Economia(commands.Cog):
         await ctx.send(f"Você deu {quantia} 🪙!")
 
 
-    @commands.command()
+    @commands.command(aliases=["furto", "steal", "assaltar"])
     @commands.cooldown(1, 300, commands.BucketType.user)
-    async def roubar(self, ctx, member: discord.Member):
+    async def furtar(self, ctx, member: discord.Member):
         await self.abrir_conta(ctx.author)
         await self.abrir_conta(member)
 
@@ -140,7 +537,8 @@ class Economia(commands.Cog):
             await ctx.send("🔒 Não vale a pena...")
             return
 
-        ganhos = random.randrange(0, din[0])
+        range = int((60/100) * din[0])
+        ganhos = random.randrange(0, range)
 
         await self.atualizar_banco(ctx.author, ganhos)
         await self.atualizar_banco(member, -1 * ganhos)
@@ -148,7 +546,33 @@ class Economia(commands.Cog):
         await ctx.send(f"O cara roubou aqui!!! Foram {ganhos} 🪙 do {member.mention}!")
 
 
-    @commands.command(aliases=["gambling", "roletar"])
+    @commands.command(aliases=["saquear", "rob"])
+    @commands.cooldown(1, 86400, commands.BucketType.user)
+    async def roubar(self, ctx, member: discord.Member):
+        await self.abrir_conta(ctx.author)
+        await self.abrir_conta(member)
+
+        meu = await self.atualizar_banco(ctx.author)
+        din = await self.atualizar_banco(member)
+
+        if din[1] < 100:
+            await ctx.send("🔒 Não vale a pena...")
+            return
+
+        if meu[1] < din[1] / 2:
+            await ctx.send("🔒 Você precisa ter pelo menos metade dos ganhos de quem está tentando roubar o cofre...")
+            return
+
+        range = int((20/100) * din[1])
+        ganhos = random.randrange(0, range)
+
+        await self.atualizar_banco(ctx.author, ganhos)
+        await self.atualizar_banco(member, -1 * ganhos, "cofre")
+
+        await ctx.send(f"O cara roubou aqui!!! Foram {ganhos} 🪙 do cofre do {member.mention}!")
+
+
+    @commands.command(aliases=["gambling", "roletar", "gamble", "g", "bet"])
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def apostar(self, ctx, quantia=None):
         await self.abrir_conta(ctx.author)
@@ -170,11 +594,15 @@ class Economia(commands.Cog):
         if quantia < 0:
             await ctx.send("Como que tu vai apostar dinheiro negativo?")
             return
+        if quantia == 0:
+            await ctx.send("Não tem como apostar nada...")
+            return
 
         final = []
 
         for _ in range(3):
-            a = random.choice(["🔔", "🧲", "🧶", "🧸", "7️⃣", "💎", "🍒", "🍀"])
+            # a = random.choice(["🔔", "🧲", "🧶", "🧸", "7️⃣", "💎", "🍒", "🍀"])
+            a = random.choice(["🔔", "🧲", "7️⃣", "💎", "🍒", "🍀"])
 
             final.append(a)
 
@@ -189,7 +617,7 @@ class Economia(commands.Cog):
         else:
             await self.atualizar_banco(ctx.author, -1 * quantia)
             await self.atualizar_banco(self.bot.user, quantia, "cofre")
-            await ctx.send("Você perdeu...")
+            await ctx.send("Você perdeu... 🤣")
 
 
     async def abrir_conta(self, user):
@@ -228,23 +656,32 @@ class Economia(commands.Cog):
         din = [users[str(user.id)]["carteira"], users[str(user.id)]["cofre"]]
 
         return din
-    
+
+
     lojinha = [
         {"nome": "Waffle", "preco": 100, "emoji": "🧇", "descricao": "comida"},
-        {"nome": "Castigo 60s", "preco": 25000, "emoji": "😝", "descricao": "utilitario"},
-        {"nome": "Castigo 5min", "preco": 100000, "emoji": "🤔", "descricao": "utilitario"},
-        {"nome": "Castigo 10min", "preco": 500000, "emoji": "😭", "descricao": "utilitario"},
-        {"nome": "Castigo 1h", "preco": 1000000, "emoji": "😱", "descricao": "utilitario"},
-        {"nome": "Castigo 1 semana", "preco": 100000000, "emoji": "🥵", "descricao": "utilitario"},
-        {"nome": "Cargo milionário **(Waffle)**", "preco": 1000000, "emoji": "💵", "descricao": "cargo"},
-        {"nome": "Cargo bilionário **(Waffle)**", "preco": 1000000000, "emoji": "💶", "descricao": "cargo"},
+        {"nome": "Picareta", "preco": 200, "emoji": "⛏️", "descricao": "ferramenta"},
+        {"nome": "Vara", "preco": 200, "emoji": "🎣", "descricao": "ferramenta"},
+        {"nome": "Pedra", "preco": 200, "emoji": "🪨", "descricao": "recurso"},
+        {"nome": "Diamante", "preco": 5000, "emoji": "💎", "descricao": "recurso"},
+        {"nome": "Dodo", "preco": 3000, "emoji": "🦤", "descricao": "recurso"},
+        {"nome": "Peixe", "preco": 200, "emoji": "🐟", "descricao": "recurso"},
+        {"nome": "Castigo1", "preco": 250000, "emoji": "😝 60s **(🚧)**", "descricao": "utilitario"},
+        {"nome": "Castigo2", "preco": 1250000, "emoji": "🤔 5min **(🚧)**", "descricao": "utilitario"},
+        {"nome": "Castigo3", "preco": 2500000, "emoji": "😭 10min **(🚧)**", "descricao": "utilitario"},
+        {"nome": "Castigo4", "preco": 15000000, "emoji": "😱 1h **(🚧)**", "descricao": "utilitario"},
+        {"nome": "Castigo5", "preco": 360000000, "emoji": "🥵 1 dia **(🚧)**", "descricao": "utilitario"},
+        {"nome": "Castigo6", "preco": 2520000000, "emoji": "💀 1 semana **(🚧)**", "descricao": "utilitario"},
+        {"nome": "Milionario", "preco": 1000000, "emoji": "💵 Cargo no **Waffle** **(🚧)**", "descricao": "cargo"},
+        {"nome": "Bilionario", "preco": 1000000000, "emoji": "💶 Cargo no **Waffle** **(🚧)**", "descricao": "cargo"}
     ]
 
-    @commands.command(aliases=["store", "mercado", "lojinha", "market"])
+
+    @commands.command(aliases=["store", "mercado", "lojinha", "market", "l"])
     async def loja(self, ctx):
         em = discord.Embed(title="Loja 🛍️", color=0xf2bc66)
 
-        em.add_field(name="------------------\nProduto", value=f"Preço 🪙 | Emoji\n**------------------**")
+        em.add_field(name="**------------------**\nProduto", value=f"Preço 🪙 | Emoji\n**------------------**\n🚧 Em obras\n**------------------**\n")
 
         for item in self.lojinha:
             nome = item["nome"]
@@ -255,7 +692,7 @@ class Economia(commands.Cog):
         await ctx.send(embed=em)
 
 
-    @commands.command()
+    @commands.command(aliases=["buy"])
     async def comprar(self, ctx, item, quantidade=1):
         await self.abrir_conta(ctx.author)
 
@@ -288,12 +725,12 @@ class Economia(commands.Cog):
 
         custo = preco * quantidade
 
-        users = await self.get_banco()
-
         din = await self.atualizar_banco(user)
 
         if (din[0] < custo):
             return [False, 2]
+
+        users = await self.get_banco()
 
         try:
             i = 0
@@ -324,13 +761,15 @@ class Economia(commands.Cog):
 
 
     @commands.command(aliases=["bag", "itens", "inventario"])
-    async def mochila(self, ctx):
+    async def mochila(self, ctx, member: discord.Member=None):
         await self.abrir_conta(ctx.author)
-        user = ctx.author
+        if member is None:
+            member = ctx.author
+
         users = await self.get_banco()
 
         try:
-            mochila = users[str(user.id)]["mochila"]
+            mochila = users[str(member.id)]["mochila"]
         except:
             mochila = []
 
@@ -344,7 +783,8 @@ class Economia(commands.Cog):
         await ctx.send(embed=em)
 
 
-    @commands.command(aliases=["utilizar"])
+    @commands.command(aliases=["utilizar", "use"])
+    @commands.cooldown(1, 28800, commands.BucketType.user)
     async def usar(self, ctx, item, quantidade=1, member=None):
         await self.abrir_conta(ctx.author)
 
@@ -364,7 +804,9 @@ class Economia(commands.Cog):
         if res[2]["descricao"] == "comida":
             await ctx.send(f"Você comeu {quantidade} {item}")
         elif res[2]["descricao"] == "utilitario":
-            await ctx.send(f"Você aplicou {res[2]['nome']} em {member}!")
+            await ctx.send(f"Você aplicou {quantidade} {res[2]['nome']} em {member}!")
+        else:
+            await ctx.send(f"Você usou {quantidade} {res[2]['nome']}!")
 
 
     async def usar_isso(self, user, item_nome, quantidade):
@@ -378,7 +820,7 @@ class Economia(commands.Cog):
 
         if item_usar is None:
             return [False, 1]
-        
+
         users = await self.get_banco()
 
         try:
@@ -390,13 +832,13 @@ class Economia(commands.Cog):
 
                     if item_usar["descricao"] == "utilitario":
                         quantidade = 1
-                        
+
                     quant_velha = coisa["quantidade"]
                     nova_quant = quant_velha - quantidade
 
                     if nova_quant < 0:
                         return [False, 2, item_usar]
-                    
+
                     users[str(user.id)]["mochila"][i]["quantidade"] = nova_quant
                     f = 1
 
@@ -413,7 +855,7 @@ class Economia(commands.Cog):
         return [True, "Funcionou", item_usar]
 
 
-    @commands.command()
+    @commands.command(aliases=["sell"])
     async def vender(self, ctx, item, quantidade=1):
         await self.abrir_conta(ctx.author)
 
@@ -441,7 +883,7 @@ class Economia(commands.Cog):
             if nome == item_nome:
                 nome_ = nome
                 if preco is None:
-                    preco = 0.8 * item["preco"]  
+                    preco = 0.9 * item["preco"]  
                 break
 
         if nome_ is None:
@@ -476,9 +918,10 @@ class Economia(commands.Cog):
             json.dump(users, f)
 
         await self.atualizar_banco(user, custo, "carteira")
+        await self.atualizar_banco(self.bot.user, custo, "cofre")
 
         return [True, "Funcionou"]
-    
+
 
     @commands.command(aliases=["rk"])
     async def ranking(self, ctx, x=3):

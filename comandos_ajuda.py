@@ -6,31 +6,32 @@ class Ajuda(commands.Cog):
         self.bot = bot
 
 
-    @commands.group(name="ajuda", aliases=["comandos", "help"])
+    @commands.group(name="ajuda", aliases=["comandos", "help", "h"])
     async def help(self, ctx):
         if ctx.invoked_subcommand is None:
-            em = discord.Embed(title="Ajuda", description="Use w!ajuda <comandos> para mais informações.", color=0xf2bc66)
+            em = discord.Embed(title="Ajuda", description="Não utilize comandos muito depressa, pois o bot pode não conseguir entender que você recebeu aquele item ou dinheiro.\n\nUse <ajuda <comando> para mais informações.", color=0xf2bc66)
 
             em.add_field(name="Utilidade", value="clear, poll")
             em.add_field(name="Divertidos", value="dado, rand, fale, entrar, sair")
             em.add_field(name="Matemática", value="soma, subt, mult, div, somas, subts, mults")
-            em.add_field(name="Economia", value="carteira, pedir, sacar, depositar, enviar, roubar, apostar, loja, comprar, mochila, vender, ranking")
+            em.add_field(name="Economia", value="carteira, pedir, cavar, sacar, depositar, enviar, roubar, furtar, apostar, minerar, pescar, loja, comprar, mochila, vender, ranking")
+            em.add_field(name="Nível", value="xp")
 
             await ctx.send(embed=em)
 
     @help.command()
     async def clear(self, ctx):
-        em = discord.Embed(title="Clear", description="Limpa o chat", color=0xf2bc66)
+        em = discord.Embed(title="🗑️ Clear", description="Limpa o chat", color=0xf2bc66)
 
-        em.add_field(name="**Sintaxe**", value="w!clear <quantidade>")
+        em.add_field(name="**Sintaxe**", value="<clear <quantidade>")
 
         await ctx.send(embed=em)
 
     @help.command()
     async def poll(self, ctx):
-        em = discord.Embed(title="Poll", description="Começa uma votação", color=0xf2bc66)
+        em = discord.Embed(title="📋 Poll", description="Começa uma votação", color=0xf2bc66)
 
-        em.add_field(name="**Sintaxe**", value="w!poll <mensagem>")
+        em.add_field(name="**Sintaxe**", value="<poll <mensagem>")
 
         await ctx.send(embed=em)
 
@@ -38,111 +39,119 @@ class Ajuda(commands.Cog):
     async def dado(self, ctx):
         em = discord.Embed(title="🎲 Dado", description="Gira um dado de 1 até 6", color=0xf2bc66)
 
-        em.add_field(name="**Sintaxe**", value="w!dado")
+        em.add_field(name="**Sintaxe**", value="<dado")
 
         await ctx.send(embed=em)
 
     @help.command()
     async def rand(self, ctx):
-        em = discord.Embed(title="Random", description="Gera um número aleatório", color=0xf2bc66)
+        em = discord.Embed(title="🎲 Random", description="Gera um número aleatório", color=0xf2bc66)
 
-        em.add_field(name="**Sintaxe**", value="w!rand <máximo")
+        em.add_field(name="**Sintaxe**", value="<rand <máximo")
 
         await ctx.send(embed=em)
 
     @help.command()
     async def fale(self, ctx):
-        em = discord.Embed(title="Fale", description="Falo algo que você digite", color=0xf2bc66)
+        em = discord.Embed(title="🗣️ Fale", description="Falo algo que você digite", color=0xf2bc66)
 
-        em.add_field(name="**Sintaxe**", value="w!fale <mensagem>")
+        em.add_field(name="**Sintaxe**", value="<fale <mensagem>")
 
         await ctx.send(embed=em)
 
     @help.command()
     async def entrar(self, ctx):
-        em = discord.Embed(title="Entrar", description="Entro no voice chat", color=0xf2bc66)
+        em = discord.Embed(title="🟢 Entrar", description="Entro no voice chat", color=0xf2bc66)
 
-        em.add_field(name="**Sintaxe**", value="w!entrar")
+        em.add_field(name="**Sintaxe**", value="<entrar")
 
         await ctx.send(embed=em)
 
     @help.command()
     async def sair(self, ctx):
-        em = discord.Embed(title="Sair", description="Saio do voice chat", color=0xf2bc66)
+        em = discord.Embed(title="🔴 Sair", description="Saio do voice chat", color=0xf2bc66)
 
-        em.add_field(name="**Sintaxe**", value="w!sair")
+        em.add_field(name="**Sintaxe**", value="<sair")
 
         await ctx.send(embed=em)
 
     @help.command()
     async def soma(self, ctx):
-        em = discord.Embed(title="Soma", description="Somo dois números", color=0xf2bc66)
+        em = discord.Embed(title="➕ Soma", description="Somo dois números", color=0xf2bc66)
 
-        em.add_field(name="**Sintaxe**", value="w!soma <x> <y>")
+        em.add_field(name="**Sintaxe**", value="<soma <x> <y>")
 
         await ctx.send(embed=em)
 
     @help.command()
     async def subt(self, ctx):
-        em = discord.Embed(title="Subtração", description="Subtraio dois números", color=0xf2bc66)
+        em = discord.Embed(title="➖ Subtração", description="Subtraio dois números", color=0xf2bc66)
 
-        em.add_field(name="**Sintaxe**", value="w!subt <x> <y>")
+        em.add_field(name="**Sintaxe**", value="<subt <x> <y>")
 
         await ctx.send(embed=em)
 
     @help.command()
     async def mult(self, ctx):
-        em = discord.Embed(title="Multiplicação", description="Multiplico dois números", color=0xf2bc66)
+        em = discord.Embed(title="✖️ Multiplicação", description="Multiplico dois números", color=0xf2bc66)
 
-        em.add_field(name="**Sintaxe**", value="w!mult <x> <y>")
+        em.add_field(name="**Sintaxe**", value="<mult <x> <y>")
 
         await ctx.send(embed=em)
 
     @help.command()
     async def div(self, ctx):
-        em = discord.Embed(title="Divisão", description="Divido dois números", color=0xf2bc66)
+        em = discord.Embed(title="➗ Divisão", description="Divido dois números", color=0xf2bc66)
 
-        em.add_field(name="**Sintaxe**", value="w!div <x> <y>")
+        em.add_field(name="**Sintaxe**", value="<div <x> <y>")
 
         await ctx.send(embed=em)
 
     @help.command()
     async def somas(self, ctx):
-        em = discord.Embed(title="Somas", description="Somo vários números", color=0xf2bc66)
+        em = discord.Embed(title="➕ Somas", description="Somo vários números", color=0xf2bc66)
 
-        em.add_field(name="**Sintaxe**", value="w!somas <x> <y> <z> ...")
+        em.add_field(name="**Sintaxe**", value="<somas <x> <y> <z> ...")
 
         await ctx.send(embed=em)
 
     @help.command()
     async def subts(self, ctx):
-        em = discord.Embed(title="Subtrações", description="Subtraio vários números", color=0xf2bc66)
+        em = discord.Embed(title="➖ Subtrações", description="Subtraio vários números", color=0xf2bc66)
 
-        em.add_field(name="**Sintaxe**", value="w!subts <x> <y> <z> ...")
+        em.add_field(name="**Sintaxe**", value="<subts <x> <y> <z> ...")
 
         await ctx.send(embed=em)
 
     @help.command()
     async def mults(self, ctx):
-        em = discord.Embed(title="Multiplicações", description="Multiplico vários números", color=0xf2bc66)
+        em = discord.Embed(title="✖️ Multiplicações", description="Multiplico vários números", color=0xf2bc66)
 
-        em.add_field(name="**Sintaxe**", value="w!mults <x> <y> <z> ...")
+        em.add_field(name="**Sintaxe**", value="<mults <x> <y> <z> ...")
 
         await ctx.send(embed=em)
 
     @help.command()
     async def carteira(self, ctx):
-        em = discord.Embed(title="Carteira", description="Visualizar sua carteira", color=0xf2bc66)
+        em = discord.Embed(title="💵 Carteira", description="Visualizar a carteira de um usuário", color=0xf2bc66)
 
-        em.add_field(name="**Sintaxe**", value="w!carteira")
+        em.add_field(name="**Sintaxe**", value="<carteira [@membro]")
 
         await ctx.send(embed=em)
 
     @help.command()
     async def pedir(self, ctx):
-        em = discord.Embed(title="Pedir", description="Pedir dinheiro", color=0xf2bc66)
+        em = discord.Embed(title="💵 Pedir", description="Pedir dinheiro", color=0xf2bc66)
 
-        em.add_field(name="**Sintaxe**", value="w!pedir")
+        em.add_field(name="**Sintaxe**", value="<pedir")
+
+        await ctx.send(embed=em)
+
+    @help.command()
+    async def cavar(self, ctx):
+        em = discord.Embed(title="🪨 Cavar", description="Cavar itens", color=0xf2bc66)
+
+        em.add_field(name="**Sintaxe**", value="<cavar")
 
         await ctx.send(embed=em)
 
@@ -150,7 +159,7 @@ class Ajuda(commands.Cog):
     async def sacar(self, ctx):
         em = discord.Embed(title="📤 Sacar", description="Sacar dinheiro do cofre", color=0xf2bc66)
 
-        em.add_field(name="**Sintaxe**", value="w!sacar <quantia>")
+        em.add_field(name="**Sintaxe**", value="<sacar <quantia>")
 
         await ctx.send(embed=em)
 
@@ -158,7 +167,7 @@ class Ajuda(commands.Cog):
     async def depositar(self, ctx):
         em = discord.Embed(title="📥 Depositar", description="Depositar dinheiro do cofre", color=0xf2bc66)
 
-        em.add_field(name="**Sintaxe**", value="w!depositar <quantia>")
+        em.add_field(name="**Sintaxe**", value="<depositar <quantia>")
 
         await ctx.send(embed=em)
 
@@ -166,15 +175,23 @@ class Ajuda(commands.Cog):
     async def enviar(self, ctx):
         em = discord.Embed(title="💸 Enviar", description="Enviar dinheiro para outro membro", color=0xf2bc66)
 
-        em.add_field(name="**Sintaxe**", value="w!enviar <@membro> <quantia>")
+        em.add_field(name="**Sintaxe**", value="<enviar <@membro> <quantia>")
 
         await ctx.send(embed=em)
 
     @help.command()
     async def roubar(self, ctx):
-        em = discord.Embed(title="🎰 Roubar", description="Roubar dinheiro de outro membro", color=0xf2bc66)
+        em = discord.Embed(title="🐱‍👤 Roubar", description="Roubar dinheiro do cofre de outro membro, possui um cooldown de 24h", color=0xf2bc66)
 
-        em.add_field(name="**Sintaxe**", value="w!roubar <@membro> <quantia>")
+        em.add_field(name="**Sintaxe**", value="<roubar <@membro>")
+
+        await ctx.send(embed=em)
+
+    @help.command()
+    async def furtar(self, ctx):
+        em = discord.Embed(title="🐱‍👤 Furtar", description="Furtar dinheiro da carteira de outro membro, possui um cooldown de 15min", color=0xf2bc66)
+
+        em.add_field(name="**Sintaxe**", value="<furtar <@membro>")
 
         await ctx.send(embed=em)
 
@@ -182,47 +199,79 @@ class Ajuda(commands.Cog):
     async def apostar(self, ctx):
         em = discord.Embed(title="🎰 Apostar", description="Aposte dinheiro em uma máquina de cassino, somente aceitamos dinheiro vivo", color=0xf2bc66)
 
-        em.add_field(name="**Sintaxe**", value="w!apostar <quantia>")
+        em.add_field(name="**Sintaxe**", value="<apostar <quantia>")
+
+        await ctx.send(embed=em)
+
+    @help.command()
+    async def minerar(self, ctx):
+        em = discord.Embed(title="⛏️ Minerar", description="Utilize suas picaretas para encontrar itens", color=0xf2bc66)
+
+        em.add_field(name="**Sintaxe**", value="<minerar")
+
+        await ctx.send(embed=em)
+
+    @help.command()
+    async def pescar(self, ctx):
+        em = discord.Embed(title="🎣 Pescar", description="Utilize suas varas de pesca para encontrar itens", color=0xf2bc66)
+
+        em.add_field(name="**Sintaxe**", value="<pescar")
 
         await ctx.send(embed=em)
 
     @help.command()
     async def loja(self, ctx):
-        em = discord.Embed(title="Loja", description="Abre a loja", color=0xf2bc66)
+        em = discord.Embed(title="🛍️ Loja", description="Abre a loja", color=0xf2bc66)
 
-        em.add_field(name="**Sintaxe**", value="w!loja")
+        em.add_field(name="**Sintaxe**", value="<loja")
 
         await ctx.send(embed=em)
 
     @help.command()
     async def comprar(self, ctx):
-        em = discord.Embed(title="Comprar", description="Comprar itens da loja", color=0xf2bc66)
+        em = discord.Embed(title="🛍️ Comprar", description="Comprar itens da loja", color=0xf2bc66)
 
-        em.add_field(name="**Sintaxe**", value="w!comprar <item> <quantidade>")
+        em.add_field(name="**Sintaxe**", value="<comprar <item> <quantidade>")
 
         await ctx.send(embed=em)
 
     @help.command()
     async def mochila(self, ctx):
-        em = discord.Embed(title="Mochila", description="Abre sua mochila", color=0xf2bc66)
+        em = discord.Embed(title="🎒 Mochila", description="Abre a mochila de um usuário", color=0xf2bc66)
 
-        em.add_field(name="**Sintaxe**", value="w!mochila")
+        em.add_field(name="**Sintaxe**", value="<mochila [@membro]")
 
         await ctx.send(embed=em)
 
     @help.command()
     async def vender(self, ctx):
-        em = discord.Embed(title="Vender", description="Vender itens da sua mochila", color=0xf2bc66)
+        em = discord.Embed(title="🛍️ Vender", description="Vender itens da sua mochila", color=0xf2bc66)
 
-        em.add_field(name="**Sintaxe**", value="w!vender <item> <quantidade>")
+        em.add_field(name="**Sintaxe**", value="<vender <item> <quantidade>")
+
+        await ctx.send(embed=em)
+
+    @help.command()
+    async def usar(self, ctx):
+        em = discord.Embed(title="🎫 Usar", description="Usar itens da sua mochila, possui um cooldown de 8h", color=0xf2bc66)
+
+        em.add_field(name="**Sintaxe**", value="<usar <item> <quantidade>")
 
         await ctx.send(embed=em)
 
     @help.command()
     async def ranking(self, ctx):
-        em = discord.Embed(title="Ranking", description="Mostra o ranking de economias", color=0xf2bc66)
+        em = discord.Embed(title="🏆 Ranking", description="Mostra o ranking de economias", color=0xf2bc66)
 
-        em.add_field(name="**Sintaxe**", value="w!ranking")
+        em.add_field(name="**Sintaxe**", value="<ranking [tamanho]")
+
+        await ctx.send(embed=em)
+
+    @help.command()
+    async def xp(self, ctx):
+        em = discord.Embed(title="🍀 XP", description="Mostra o XP de um usuário", color=0xf2bc66)
+
+        em.add_field(name="**Sintaxe**", value="<xp [@membro]")
 
         await ctx.send(embed=em)
 
