@@ -673,7 +673,7 @@ class Economia(commands.Cog):
     async def loja(self, ctx):
         em = discord.Embed(title="Loja 🛍️", color=0xf2bc66)
 
-        em.add_field(name="**------------------**\nProduto", value=f"Preço 🪙 | Emoji\n**------------------**\n🚧 Em obras\n**------------------**\n")
+        em.add_field(name="**------------------**\nProduto", value=f"Preço 🪙 | Emoji\n**------------------**\n")
 
         for item in self.lojinha:
             nome = item["nome"]
