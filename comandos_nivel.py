@@ -9,8 +9,8 @@ class nvl(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.canais_especificos = {
-            ID_DO_SERVER: ID_DO_CANAL,
-            ID_DO_SERVER: ID_DO_CANAL,
+            344610042756202496: 1215455049564684329, # Waffle: bot
+            768848870419333180: 1215455049564684329, # Miau: bot
         }
 
 
@@ -23,7 +23,7 @@ class nvl(commands.Cog):
         if current_experience >= required_experience:
             users[str(user.id)]["nvl"] += 1
             return True
-        
+
         return False
 
 
@@ -43,7 +43,8 @@ class nvl(commands.Cog):
 
             if await self.level_up(user, users):
                 level_up_embed = discord.Embed(title="Ebaaa você subiu de nível!", color=discord.Color.green())
-                level_up_embed.add_field(name="Parabéns 🎉", value=f"{message.author.mention} subiu para o nível {users[str(user.id)]['nvl']}!")
+                # level_up_embed.add_field(name="Parabéns 🎉", value=f"{message.author.mention} subiu para o nível {users[str(user.id)]['nvl']}!")
+                level_up_embed.add_field(name="Parabéns 🎉", value=f"**{message.author.display_name}** subiu para o nível **{users[str(user.id)]['nvl']}**!")
 
                 guild_id = message.guild.id
                 if guild_id in self.canais_especificos:
@@ -69,7 +70,7 @@ class nvl(commands.Cog):
         level_card.add_field(name="Experiência:", value=users[str(member.id)]["xp"])
         level_card.set_footer(text=f"Requisitado por {ctx.author.name}", icon_url=ctx.author.avatar)
         await ctx.send(embed=level_card)
-    
+
 
     async def abrir_niveis(self, user):
         users = await self.get_niveis()
@@ -86,7 +87,7 @@ class nvl(commands.Cog):
                 json.dump(users, f)
 
         return True
-    
+
 
     async def get_niveis(self):
         with open("usuarios.json", "r") as f:

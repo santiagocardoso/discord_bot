@@ -1,4 +1,6 @@
+import os
 import discord
+from dotenv import load_dotenv
 from discord import app_commands
 from discord.ext import commands
 from discord.utils import get
@@ -9,18 +11,16 @@ import asyncio
 from server import server
 
 async def run_discord_bot():
-    with open("token.txt", "r") as file:
-        TOKEN = file.read()
+    load_dotenv()
+    TOKEN = os.getenv("DISCORD_TOKEN")
+
     intents = discord.Intents.all()
-    bot = commands.Bot(command_prefix=["w!", "<", ">"], intents=intents, help_command=None)
+    bot = commands.Bot(command_prefix=["<", "w!", ">"], intents=intents, help_command=None)
 
 
     @bot.event
     async def on_ready():
         bot.loop.create_task(mudar_status())
-        # activity = discord.Game(name=f"waffle maker | !ajuda", type=3)
-        # activity = discord.Game(name=f"waffle maker em {len(bot.guilds)} servers | !ajuda", type=3)
-        # await bot.change_presence(activity=activity)
         print("Wafflinho está rodando!")
         try:
             synced = await bot.tree.sync()
@@ -32,7 +32,7 @@ async def run_discord_bot():
     async def mudar_status():
         await bot.wait_until_ready()
 
-        todos_status = ["waffle maker | w!help", f"em {len(bot.guilds)} servers | w!help"]
+        todos_status = ["waffle maker | <help", f"em {len(bot.guilds)} servers | <help"]
 
         while not bot.is_closed():
             status = random.choice(todos_status)
@@ -45,7 +45,7 @@ async def run_discord_bot():
     async def on_raw_reaction_add(payload):  # Da um cargo através da reação de um emoji
         guild = discord.utils.find(lambda g: g.id == payload.guild_id, bot.guilds)
 
-        if payload.message_id == ID_DA_MENSAGEM or payload.message_id == ID_DA_MENSAGEM:
+        if payload.message_id == 774810615373365268 or payload.message_id == 1109138770479038515:
             if payload.emoji.name == '💨':
                 role = get(guild.roles, name="MOVER")
                 if role is not None:
@@ -59,7 +59,7 @@ async def run_discord_bot():
     async def on_raw_reaction_remove(payload):  # Remove um cargo através da reação de um emoji
         guild = discord.utils.find(lambda g: g.id == payload.guild_id, bot.guilds)
 
-        if payload.message_id == ID_DA_MENSAGEM or payload.message_id == ID_DA_MENSAGEM:
+        if payload.message_id == 774810615373365268 or payload.message_id == 1109138770479038515:
             if payload.emoji.name == '💨':
                 role = get(guild.roles, name="MOVER")
                 if role is not None:
@@ -73,18 +73,18 @@ async def run_discord_bot():
         guild = member.guild
         if guild.system_channel is not None:
             try:
-                embed = discord.Embed(
-                    title=f"Eae {member.name}!\nBem-vindo ao {guild.name}, dá uma olhadinha nas 📃┃regras",
-                    color=0xf2bc66,
-                )
-                await guild.system_channel.send(f"{member.mention}")
-                await guild.system_channel.send(embed=embed)
-
-                if guild.id == ID_DO_SERVER:
+                if guild.id == 344610042756202496:
+                    embed = discord.Embed(
+                        title=f"Eae {member.name}!\nBem-vindo ao {guild.name}, dá uma olhadinha nas 📃┃regras",
+                        color=0xf2bc66,
+                    )
+                    await guild.system_channel.send(f"{member.mention}")
+                    await guild.system_channel.send(embed=embed)
+                    
                     role = get(guild.roles, name="MEMBROS")
                     if role:
                         await member.add_roles(role)
-                elif guild.id == ID_DO_SERVER:
+                elif guild.id == 768848870419333180:
                     role = get(guild.roles, name="👨‍🌾 - Plebeus - 👨‍🌾")
                     if role:
                         await member.add_roles(role)
@@ -121,3 +121,8 @@ async def run_discord_bot():
 
     server()
     return bot, TOKEN
+
+if __name__ == "__main__":
+    import asyncio
+    bot_instance, token = asyncio.run(run_discord_bot())
+    asyncio.run(bot_instance.start(token))

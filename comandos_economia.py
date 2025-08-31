@@ -665,15 +665,7 @@ class Economia(commands.Cog):
         {"nome": "Pedra", "preco": 200, "emoji": "🪨", "descricao": "recurso"},
         {"nome": "Diamante", "preco": 5000, "emoji": "💎", "descricao": "recurso"},
         {"nome": "Dodo", "preco": 3000, "emoji": "🦤", "descricao": "recurso"},
-        {"nome": "Peixe", "preco": 200, "emoji": "🐟", "descricao": "recurso"},
-        {"nome": "Castigo1", "preco": 250000, "emoji": "😝 60s **(🚧)**", "descricao": "utilitario"},
-        {"nome": "Castigo2", "preco": 1250000, "emoji": "🤔 5min **(🚧)**", "descricao": "utilitario"},
-        {"nome": "Castigo3", "preco": 2500000, "emoji": "😭 10min **(🚧)**", "descricao": "utilitario"},
-        {"nome": "Castigo4", "preco": 15000000, "emoji": "😱 1h **(🚧)**", "descricao": "utilitario"},
-        {"nome": "Castigo5", "preco": 360000000, "emoji": "🥵 1 dia **(🚧)**", "descricao": "utilitario"},
-        {"nome": "Castigo6", "preco": 2520000000, "emoji": "💀 1 semana **(🚧)**", "descricao": "utilitario"},
-        {"nome": "Milionario", "preco": 1000000, "emoji": "💵 Cargo no **Waffle** **(🚧)**", "descricao": "cargo"},
-        {"nome": "Bilionario", "preco": 1000000000, "emoji": "💶 Cargo no **Waffle** **(🚧)**", "descricao": "cargo"}
+        {"nome": "Peixe", "preco": 200, "emoji": "🐟", "descricao": "recurso"}
     ]
 
 
@@ -803,8 +795,6 @@ class Economia(commands.Cog):
 
         if res[2]["descricao"] == "comida":
             await ctx.send(f"Você comeu {quantidade} {item}")
-        elif res[2]["descricao"] == "utilitario":
-            await ctx.send(f"Você aplicou {quantidade} {res[2]['nome']} em {member}!")
         else:
             await ctx.send(f"Você usou {quantidade} {res[2]['nome']}!")
 
@@ -829,9 +819,6 @@ class Economia(commands.Cog):
             for coisa in users[str(user.id)]["mochila"]:
                 n = coisa["item"]
                 if n == item_nome:
-
-                    if item_usar["descricao"] == "utilitario":
-                        quantidade = 1
 
                     quant_velha = coisa["quantidade"]
                     nova_quant = quant_velha - quantidade
@@ -924,33 +911,30 @@ class Economia(commands.Cog):
 
 
     @commands.command(aliases=["rk"])
-    async def ranking(self, ctx, x=3):
+    async def ranking(self, ctx, x: int = 3):
         users = await self.get_banco()
-        ranking = {}
         total = []
 
-        for user in users:
-            nome = int(user)
-            quant_total = users[user]["carteira"] + users[user]["cofre"]
-            ranking[quant_total] = nome
-            total.append(quant_total)
+        for user_id, data in users.items():
+            uid = int(user_id)
+            quant_total = data.get("carteira", 0) + data.get("cofre", 0)
+            total.append((quant_total, uid))
 
-        total = sorted(total, reverse=True)
+        total.sort(reverse=True, key=lambda x: x[0])
 
-        em = discord.Embed(title=f"🏆 Top {x} pessoas mais ricas", description="É rankeado através da quantia total de dinheiro do usuário", color=0xf2bc66)
-        i = 1
+        em = discord.Embed(
+            title=f"🏆 Top {x} pessoas mais ricas",
+            description="É rankeado através da quantia total de dinheiro do usuário",
+            color=0xf2bc66
+        )
 
-        for qtd in total:
-            id_ = ranking[qtd]
-            membro = self.bot.get_user(id_)
-            nome = membro.name
-            em.add_field(name=f"{i}. {nome}", value=f"{qtd}", inline=False)
-            if i == x:
-                break
-            else:
-                i += 1
+        for i, (qtd, uid) in enumerate(total[:x], start=1):
+            membro = self.bot.get_user(uid) or await self.bot.fetch_user(uid)
+            nome = membro.name if membro else f"Usuário {uid}"
+            em.add_field(name=f"{i}. {nome}", value=f"{qtd:,}", inline=False)  # formata com separador de milhar
 
         await ctx.send(embed=em)
+
 
 
 async def setup(bot):

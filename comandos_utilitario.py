@@ -7,10 +7,10 @@ class Utilitario(commands.Cog):
         self.bot = bot
 
     @commands.command(aliases=["purge", "delete", "vanish", "wipe"])
-    @commands.cooldown(1, 5, commands.BucketType.default)
-    @commands.has_permissions(manage_messages=True)
+    @commands.cooldown(1, 4, commands.BucketType.default)
+    @commands.has_any_role("💘- Queen miau -💘", "⭐we love casting miaus⭐", "STREAMER", "MOD", "VIP")
     async def clear(self, ctx, amount: int = 0):
-        quant = 6
+        quant = 10
       
         if amount < quant + 1:
             await ctx.message.delete()
