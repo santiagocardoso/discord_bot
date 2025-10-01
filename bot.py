@@ -16,7 +16,8 @@ TWITCH_CLIENT_ID = os.getenv("TWITCH_CLIENT_ID")
 TWITCH_APP_TOKEN = os.getenv("TWITCH_APP_TOKEN")
 TWITCH_USER_ID = os.getenv("TWITCH_USER_ID")
 TWITCH_USERNAME = "santcar7"
-DISCORD_WEBHOOK_URLS = os.getenv("DISCORD_WEBHOOK_URLS", "")
+DISCORD_WEBHOOK_URL_WAFFLE = os.getenv("DISCORD_WEBHOOK_URL_WAFFLE")
+DISCORD_WEBHOOK_URL_MIAU = os.getenv("DISCORD_WEBHOOK_URL_MIAU")
 
 was_online = False
 
@@ -28,7 +29,14 @@ async def run_discord_bot():
     async def check_twitch_live():
         global was_online
         
-        webhook_urls = [url.strip() for url in DISCORD_WEBHOOK_URLS.split(',')]
+        webhook_urls = []
+        if DISCORD_WEBHOOK_URL_WAFFLE:
+            webhook_urls.append(DISCORD_WEBHOOK_URL_WAFFLE)
+        if DISCORD_WEBHOOK_URL_MIAU:
+            webhook_urls.append(DISCORD_WEBHOOK_URL_MIAU)
+        
+        if not webhook_urls:
+            return
         
         stream_url = f"https://api.twitch.tv/helix/streams?user_id={TWITCH_USER_ID}"
         headers = { "Client-ID": TWITCH_CLIENT_ID, "Authorization": f"Bearer {TWITCH_APP_TOKEN}" }
