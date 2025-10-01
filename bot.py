@@ -25,18 +25,15 @@ async def run_discord_bot():
     intents = discord.Intents.all()
     bot = commands.Bot(command_prefix=["<", "w!", ">"], intents=intents, help_command=None)
 
+
     @tasks.loop(minutes=2)
     async def check_twitch_live():
         global was_online
-        
-        webhook_urls = []
-        if DISCORD_WEBHOOK_URL_WAFFLE:
-            webhook_urls.append(DISCORD_WEBHOOK_URL_WAFFLE)
-        if DISCORD_WEBHOOK_URL_MIAU:
-            webhook_urls.append(DISCORD_WEBHOOK_URL_MIAU)
-        
-        if not webhook_urls:
-            return
+
+        webhooks_com_cargos = {
+            os.getenv("DISCORD_WEBHOOK_URL_WAFFLE"): "1422791135738466334",
+            os.getenv("DISCORD_WEBHOOK_URL_MIAU"): "1422791525980573726"
+        }
         
         stream_url = f"https://api.twitch.tv/helix/streams?user_id={TWITCH_USER_ID}"
         headers = { "Client-ID": TWITCH_CLIENT_ID, "Authorization": f"Bearer {TWITCH_APP_TOKEN}" }
@@ -52,7 +49,7 @@ async def run_discord_bot():
                     
                     if data.get("data"):
                         if not was_online:
-                            print(f"{TWITCH_USERNAME} está online! Enviando notificação para {len(webhook_urls)} canais.")
+                            print(f"{TWITCH_USERNAME} está online! Enviando notificação...")
                             
                             stream_data = data["data"][0]
                             user_data = await get_twitch_user_data(session, headers)
@@ -60,7 +57,7 @@ async def run_discord_bot():
                             embed = discord.Embed(
                                 title=f"🔴 LIVE ON! {stream_data.get('title')}",
                                 url=f"https://www.twitch.tv/{TWITCH_USERNAME}",
-                                color=0x0047ab
+                                color=0x6441a5
                             )
                             embed.set_author(name=f"{stream_data.get('user_name')}", url=f"https://www.twitch.tv/{TWITCH_USERNAME}", icon_url=user_data.get('profile_image_url'))
                             embed.add_field(name="Jogando", value=f"{stream_data.get('game_name')}", inline=True)
@@ -70,10 +67,16 @@ async def run_discord_bot():
                             embed.set_image(url=thumbnail_url)
                             embed.set_footer(text="Clique no título para assistir!")
 
-                            for url in webhook_urls:
+                            for url, role_id in webhooks_com_cargos.items():
+                                if not url or not role_id:
+                                    continue
+                                
                                 try:
                                     webhook = discord.Webhook.from_url(url, session=session)
-                                    await webhook.send(content="@everyone O Santi está em live, venham ver!", embed=embed)
+                                    
+                                    mensagem_com_cargo = f"<@&{role_id}> **santcar7** está em live, venham ver!"
+                                    
+                                    await webhook.send(content=mensagem_com_cargo, embed=embed)
                                 except Exception as e:
                                     print(f"Falha ao enviar para o webhook {url[:30]}... Erro: {e}")
                             
