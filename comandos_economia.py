@@ -573,7 +573,7 @@ class Economia(commands.Cog):
 
 
     @commands.command(aliases=["gambling", "roletar", "gamble", "g", "bet"])
-    @commands.cooldown(1, 5, commands.BucketType.user)
+    @commands.cooldown(1, 3, commands.BucketType.user)
     async def apostar(self, ctx, quantia=None):
         await self.abrir_conta(ctx.author)
 

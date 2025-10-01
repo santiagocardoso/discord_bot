@@ -2,24 +2,99 @@ import os
 import discord
 from dotenv import load_dotenv
 from discord import app_commands
-from discord.ext import commands
+from discord.ext import commands, tasks
 from discord.utils import get
 import random
 import asyncio
+import aiohttp
 # import youtube_dl
-
 from server import server
 
-async def run_discord_bot():
-    load_dotenv()
-    TOKEN = os.getenv("DISCORD_TOKEN")
+load_dotenv()
+TOKEN = os.getenv("DISCORD_TOKEN")
+TWITCH_CLIENT_ID = os.getenv("TWITCH_CLIENT_ID")
+TWITCH_APP_TOKEN = os.getenv("TWITCH_APP_TOKEN")
+TWITCH_USER_ID = os.getenv("TWITCH_USER_ID")
+TWITCH_USERNAME = "santcar7"
+DISCORD_WEBHOOK_URLS = os.getenv("DISCORD_WEBHOOK_URLS", "")
 
+was_online = False
+
+async def run_discord_bot():
     intents = discord.Intents.all()
     bot = commands.Bot(command_prefix=["<", "w!", ">"], intents=intents, help_command=None)
+
+    @tasks.loop(minutes=2)
+    async def check_twitch_live():
+        global was_online
+        
+        webhook_urls = [url.strip() for url in DISCORD_WEBHOOK_URLS.split(',')]
+        
+        stream_url = f"https://api.twitch.tv/helix/streams?user_id={TWITCH_USER_ID}"
+        headers = { "Client-ID": TWITCH_CLIENT_ID, "Authorization": f"Bearer {TWITCH_APP_TOKEN}" }
+
+        async with aiohttp.ClientSession() as session:
+            try:
+                async with session.get(stream_url, headers=headers) as response:
+                    if response.status != 200:
+                        print(f"Erro ao verificar a Twitch. Status: {response.status}")
+                        return
+                    
+                    data = await response.json()
+                    
+                    if data.get("data"):
+                        if not was_online:
+                            print(f"{TWITCH_USERNAME} está online! Enviando notificação para {len(webhook_urls)} canais.")
+                            
+                            stream_data = data["data"][0]
+                            user_data = await get_twitch_user_data(session, headers)
+
+                            embed = discord.Embed(
+                                title=f"🔴 LIVE ON! {stream_data.get('title')}",
+                                url=f"https://www.twitch.tv/{TWITCH_USERNAME}",
+                                color=0x0047ab
+                            )
+                            embed.set_author(name=f"{stream_data.get('user_name')}", url=f"https://www.twitch.tv/{TWITCH_USERNAME}", icon_url=user_data.get('profile_image_url'))
+                            embed.add_field(name="Jogando", value=f"{stream_data.get('game_name')}", inline=True)
+                            embed.add_field(name="Espectadores", value=f"{stream_data.get('viewer_count')}", inline=True)
+                            
+                            thumbnail_url = stream_data.get('thumbnail_url').replace('{width}', '1280').replace('{height}', '720')
+                            embed.set_image(url=thumbnail_url)
+                            embed.set_footer(text="Clique no título para assistir!")
+
+                            for url in webhook_urls:
+                                try:
+                                    webhook = discord.Webhook.from_url(url, session=session)
+                                    await webhook.send(content="@everyone O Santi está em live, venham ver!", embed=embed)
+                                except Exception as e:
+                                    print(f"Falha ao enviar para o webhook {url[:30]}... Erro: {e}")
+                            
+                            was_online = True
+                    else:
+                        if was_online:
+                            print(f"{TWITCH_USERNAME} ficou offline.")
+                            was_online = False
+
+            except Exception as e:
+                print(f"Ocorreu um erro ao checar a Twitch: {e}")
+
+    async def get_twitch_user_data(session, headers):
+        user_url = f"https://api.twitch.tv/helix/users?id={TWITCH_USER_ID}"
+        async with session.get(user_url, headers=headers) as response:
+            if response.status == 200:
+                user_data = await response.json()
+                if user_data.get("data"):
+                    return user_data["data"][0]
+        return {}
+
+    @check_twitch_live.before_loop
+    async def before_check():
+        await bot.wait_until_ready()
 
 
     @bot.event
     async def on_ready():
+        check_twitch_live.start()
         bot.loop.create_task(mudar_status())
         print("Wafflinho está rodando!")
         try:
