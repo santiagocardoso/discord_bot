@@ -9,7 +9,7 @@ class Ajuda(commands.Cog):
     @commands.group(name="ajuda", aliases=["comandos", "help", "h"])
     async def help(self, ctx):
         if ctx.invoked_subcommand is None:
-            em = discord.Embed(title="Ajuda", description="Não utilize comandos muito depressa, pois eu posso não entender que você executou aquele comando.\n\nUse '<ajuda nome_comando' para mais informações.", color=0xf2bc66)
+            em = discord.Embed(title="Ajuda", description="Não utilize comandos muito depressa, pois eu posso não entender que você executou aquele comando.\n\nUse ''<ajuda nome_comando'' para mais informações.", color=0xf2bc66)
 
             em.add_field(name="Utilidade", value="clear, poll") # , entrar, sair")
             em.add_field(name="Divertidos", value="dado, rand, fale")
