@@ -9,9 +9,9 @@ class Ajuda(commands.Cog):
     @commands.group(name="ajuda", aliases=["comandos", "help", "h"])
     async def help(self, ctx):
         if ctx.invoked_subcommand is None:
-            em = discord.Embed(title="Ajuda", description="Não utilize comandos muito depressa, pois eu posso não entender que você executou aquele comando.\n\nUse <ajuda nome_comando para mais informações.", color=0xf2bc66)
+            em = discord.Embed(title="Ajuda", description="Não utilize comandos muito depressa, pois eu posso não entender que você executou aquele comando.\n\nUse '<ajuda nome_comando' para mais informações.", color=0xf2bc66)
 
-            em.add_field(name="Utilidade", value="clear, poll, entrar, sair")
+            em.add_field(name="Utilidade", value="clear, poll") # , entrar, sair")
             em.add_field(name="Divertidos", value="dado, rand, fale")
             em.add_field(name="Matemática", value="soma, subt, mult, div, somas, subts, mults")
             em.add_field(name="Economia", value="carteira, pedir, cavar, sacar, depositar, enviar, roubar, furtar, apostar, minerar, pescar, loja, comprar, mochila, vender, ranking")
