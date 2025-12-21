@@ -100,12 +100,12 @@ class VermintideView(ui.View):
     async def prev_page(self, interaction: discord.Interaction):
         self.pagina -= 1
         self.atualizar_botoes()
-        await interaction.response.edit_message(embed=view.criar_embed(), view=self)
+        await interaction.response.edit_message(embed=self.criar_embed(), view=self)
 
     async def next_page(self, interaction: discord.Interaction):
         self.pagina += 1
         self.atualizar_botoes()
-        await interaction.response.edit_message(embed=view.criar_embed(), view=self)
+        await interaction.response.edit_message(embed=self.criar_embed(), view=self)
 
     async def sortear_callback(self, interaction: discord.Interaction):
         if self.ultima_msg_sorteio:
