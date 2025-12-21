@@ -25,24 +25,47 @@ async def run_discord_bot():
     intents = discord.Intents.all()
     bot = commands.Bot(command_prefix=["<", "w!", ">"], intents=intents, help_command=None)
 
+    async def get_twitch_access_token():
+        client_id = os.getenv("TWITCH_CLIENT_ID")
+        client_secret = os.getenv("TWITCH_CLIENT_SECRET")
+        url = f"https://id.twitch.tv/oauth2/token?client_id={client_id}&client_secret={client_secret}&grant_type=client_credentials"
+        
+        async with aiohttp.ClientSession() as session:
+            async with session.post(url) as response:
+                if response.status == 200:
+                    data = await response.json()
+                    return data["access_token"]
+                else:
+                    print(f"Erro ao gerar token: {response.status}")
+                    return None
 
     @tasks.loop(minutes=2)
     async def check_twitch_live():
         global was_online
+
+        token = await get_twitch_access_token()
+        if not token:
+            print("Não foi possível obter o token da Twitch.")
+            return
+
+        headers = {
+            "Client-ID": TWITCH_CLIENT_ID,
+            "Authorization": f"Bearer {token}"
+        }
+        
+        stream_url = f"https://api.twitch.tv/helix/streams?user_id={TWITCH_USER_ID}"
 
         webhooks_com_cargos = {
             os.getenv("DISCORD_WEBHOOK_URL_WAFFLE"): "1422791135738466334",
             os.getenv("DISCORD_WEBHOOK_URL_MIAU"): "1422791525980573726"
         }
         
-        stream_url = f"https://api.twitch.tv/helix/streams?user_id={TWITCH_USER_ID}"
-        headers = { "Client-ID": TWITCH_CLIENT_ID, "Authorization": f"Bearer {TWITCH_APP_TOKEN}" }
-
         async with aiohttp.ClientSession() as session:
             try:
                 async with session.get(stream_url, headers=headers) as response:
                     if response.status != 200:
-                        print(f"Erro ao verificar a Twitch. Status: {response.status}")
+                        erro_msg = await response.text()
+                        print(f"Erro ao verificar a Twitch. Status: {response.status} - {erro_msg}")
                         return
                     
                     data = await response.json()
