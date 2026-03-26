@@ -10,7 +10,7 @@ log.setLevel(logging.ERROR)
 
 @app.route('/')
 def home():
-    return "Oie, estou on!"
+    return "Wafflinho está rodando!"
 
 def run():
     port = int(os.environ.get("PORT", 8000))
