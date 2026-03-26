@@ -20,12 +20,17 @@ DISCORD_WEBHOOK_URL_WAFFLE = os.getenv("DISCORD_WEBHOOK_URL_WAFFLE")
 DISCORD_WEBHOOK_URL_MIAU = os.getenv("DISCORD_WEBHOOK_URL_MIAU")
 
 was_online = False
+twitch_access_token_cache = None
 
 async def run_discord_bot():
     intents = discord.Intents.all()
     bot = commands.Bot(command_prefix=["<", "w!", ">"], intents=intents, help_command=None)
 
     async def get_twitch_access_token():
+        global twitch_access_token_cache
+        if twitch_access_token_cache:
+            return twitch_access_token_cache
+
         client_id = os.getenv("TWITCH_CLIENT_ID")
         client_secret = os.getenv("TWITCH_CLIENT_SECRET")
         url = f"https://id.twitch.tv/oauth2/token?client_id={client_id}&client_secret={client_secret}&grant_type=client_credentials"
@@ -34,7 +39,8 @@ async def run_discord_bot():
             async with session.post(url) as response:
                 if response.status == 200:
                     data = await response.json()
-                    return data["access_token"]
+                    twitch_access_token_cache = data["access_token"]
+                    return twitch_access_token_cache
                 else:
                     print(f"Erro ao gerar token: {response.status}")
                     return None
@@ -42,6 +48,7 @@ async def run_discord_bot():
     @tasks.loop(minutes=2)
     async def check_twitch_live():
         global was_online
+        global twitch_access_token_cache
 
         token = await get_twitch_access_token()
         if not token:
@@ -63,6 +70,9 @@ async def run_discord_bot():
         async with aiohttp.ClientSession() as session:
             try:
                 async with session.get(stream_url, headers=headers) as response:
+                    if response.status == 401:
+                        twitch_access_token_cache = None
+                        return
                     if response.status != 200:
                         erro_msg = await response.text()
                         print(f"Erro ao verificar a Twitch. Status: {response.status} - {erro_msg}")
@@ -128,14 +138,12 @@ async def run_discord_bot():
 
     @bot.event
     async def on_ready():
-        check_twitch_live.start()
-        bot.loop.create_task(mudar_status())
+        if not check_twitch_live.is_running():
+            check_twitch_live.start()
+        if not hasattr(bot, 'status_loop_started'):
+            bot.loop.create_task(mudar_status())
+            bot.status_loop_started = True
         print("Wafflinho está rodando!")
-        try:
-            synced = await bot.tree.sync()
-            print(f"Sincronizado {len(synced)} comandos")
-        except Exception as e:
-            print(e)
 
 
     async def mudar_status():
@@ -146,7 +154,7 @@ async def run_discord_bot():
         while not bot.is_closed():
             status = random.choice(todos_status)
             await bot.change_presence(activity=discord.Game(name=status))
-            await asyncio.sleep(10)
+            await asyncio.sleep(60)
 
     # Controles de servidor -----------------------------------------------
 
@@ -216,6 +224,12 @@ async def run_discord_bot():
 
     # Comandos com barra -----------------------------------------------
 
+    @bot.command()
+    @commands.is_owner()
+    async def sync(ctx):
+        synced = await bot.tree.sync()
+        await ctx.send(f"Sincronizado {len(synced)} comandos")
+
     @bot.tree.command(name="oi")
     async def oi(interaction: discord.Interaction):
         await interaction.response.send_message(f"Oie {interaction.user.mention}!", ephemeral=True)
@@ -229,10 +243,8 @@ async def run_discord_bot():
     # Iniciar o bot -----------------------------------------------
 
     server()
-    return bot, TOKEN
+    await bot.start(TOKEN)
 
 if __name__ == "__main__":
     import asyncio
-    bot_instance, token = asyncio.run(run_discord_bot())
-    asyncio.run(bot_instance.start(token))
-    
+    asyncio.run(run_discord_bot())
