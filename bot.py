@@ -149,11 +149,16 @@ async def run_discord_bot():
     async def mudar_status():
         await bot.wait_until_ready()
 
-        todos_status = ["waffle maker | <help", f"em {len(bot.guilds)} servers | <help"]
-
         while not bot.is_closed():
+            todos_status = [
+                f"Cozinhando em {len(bot.guilds)} servidores! 🧑‍🍳",
+                "Use <help para ver meus comandos!",
+                "Já comeu seu waffle hoje? 🧇",
+                "Siga o santcar7 na Twitch! 💜"
+            ]
+            
             status = random.choice(todos_status)
-            await bot.change_presence(activity=discord.Game(name=status))
+            await bot.change_presence(activity=discord.Streaming(name=status, url="https://www.twitch.tv/santcar7"))
             await asyncio.sleep(60)
 
     # Controles de servidor -----------------------------------------------
@@ -246,5 +251,4 @@ async def run_discord_bot():
     await bot.start(TOKEN)
 
 if __name__ == "__main__":
-    import asyncio
     asyncio.run(run_discord_bot())
