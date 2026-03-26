@@ -11,7 +11,7 @@ class Ajuda(commands.Cog):
         if ctx.invoked_subcommand is None:
             em = discord.Embed(title="Ajuda", description="Não utilize comandos muito depressa, pois eu posso não entender o que você quis fazer.\n\nUse ''<ajuda nome_comando'' para mais informações.", color=0xf2bc66)
 
-            em.add_field(name="Utilidade", value="clear, poll, sort") # , entrar, sair")
+            em.add_field(name="Utilidade", value="clear, poll, sort, sync") # , entrar, sair")
             em.add_field(name="Divertidos", value="dado, rand, fale")
             em.add_field(name="Matemática", value="soma, subt, mult, div, somas, subts, mults")
             em.add_field(name="Economia", value="carteira, pedir, cavar, sacar, depositar, enviar, roubar, furtar, apostar, minerar, pescar, loja, comprar, mochila, vender, ranking")
@@ -40,6 +40,14 @@ class Ajuda(commands.Cog):
         em = discord.Embed(title="🗑️ Sort", description="Sorteia um mapa", color=0xf2bc66)
 
         em.add_field(name="**Sintaxe**", value="<sort")
+
+        await ctx.send(embed=em)
+
+    @help.command()
+    async def sync(self, ctx):
+        em = discord.Embed(title="🌀 Sync", description="Sincronizar comandos de barra", color=0xf2bc66)
+
+        em.add_field(name="**Sintaxe**", value="<sync")
 
         await ctx.send(embed=em)
 
